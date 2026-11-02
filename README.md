@@ -29,7 +29,7 @@ Built with Node.js, Express, Socket.IO, and Canvas 2D.
 ### Install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/shove-and-survive.git
+git clone https://github.com/paschalfidel/shove-and-survive.git
 cd shove-and-survive
 npm install
 npm start
