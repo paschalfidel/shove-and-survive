@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#111629">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="description" content="Shove & Survive — a chaotic multiplayer arena brawler.">
+  <title>Shove & Survive</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main id="game-shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">●</span> SHOVE <span class="amp">&amp;</span> SURVIVE</div>
+      <div class="phase-tag">MULTIPLAYER PARTY BRAWLER</div>
+    </header>
+
+    <section id="entry-screen" class="entry-card">
+      <div class="entry-art">🟢 🩷 🔵</div>
+      <h1>SHOVE<br><span class="amp">&amp;</span> SURVIVE</h1>
+      <p>Last blob on the platform wins.</p>
+      <details class="instructions">
+        <summary>HOW TO PLAY</summary>
+        <div class="instruction-copy">
+          <p><strong>Move:</strong> Use WASD or arrow keys on desktop. On phones, drag on the arena or steer with the joystick.</p>
+          <p><strong>Dash:</strong> Press Space or tap the action button to shove nearby rivals. Time it carefully; it has a cooldown.</p>
+          <p><strong>Survive:</strong> Stay on the platform, grab power-ups, and avoid hazards as the arena shrinks. Last blob standing earns the most points.</p>
+          <p><strong>Join friends:</strong> Create a room and share its invite link or six-character code. Rooms support 2–8 players.</p>
+        </div>
+      </details>
+      <label class="field-label" for="player-name">YOUR DISPLAY NAME</label>
+      <input id="player-name" maxlength="12" autocomplete="nickname" placeholder="e.g. Wobbly Wizard">
+      <label class="field-label" for="room-code">ROOM CODE · FOR JOINING</label>
+      <input id="room-code" maxlength="6" autocomplete="off" placeholder="ABC123">
+      <div class="entry-actions">
+        <button id="create-button" class="primary-button">CREATE ROOM</button>
+        <button id="join-button" class="secondary-button">JOIN ROOM</button>
+      </div>
+      <div id="entry-error" class="error" role="status"></div>
+      <div class="entry-foot">2–8 PLAYERS · NO LOGIN · JUST CHAOS</div>
+    </section>
+
+    <section id="room-screen" class="room-layout hidden">
+      <aside class="room-panel">
+        <div class="room-panel-head">
+          <div class="eyebrow">ROOM CODE</div>
+          <div id="room-code-display" class="room-code">------</div>
+          <button id="copy-link" class="copy-button">COPY INVITE LINK</button>
+        </div>
+        <div class="qr-wrap"><img id="room-qr" alt="Room invitation QR code"><span>SCAN TO JOIN</span></div>
+        <div class="players-head"><span>PLAYERS</span><span id="player-count">0 / 8</span></div>
+        <ul id="player-list" class="player-list"></ul>
+        <div class="leaderboard-wrap">
+          <div class="players-head"><span>SESSION LEADERBOARD</span><span>🏆</span></div>
+          <ol id="session-leaderboard" class="session-leaderboard"></ol>
+        </div>
+        <div class="room-actions">
+          <details class="instructions room-instructions">
+            <summary>HOW TO PLAY</summary>
+            <div class="instruction-copy">
+              <p><strong>Move:</strong> WASD/arrows, arena drag, or joystick.</p>
+              <p><strong>Dash:</strong> Space or the action button shoves nearby rivals.</p>
+              <p><strong>Survive:</strong> Stay on the platform, collect power-ups, and avoid hazards. The arena shrinks over time.</p>
+              <p>When eliminated, spectate and toss pebbles. The host starts rounds and chooses whether to replay after the match.</p>
+            </div>
+          </details>
+          <button id="start-button" class="primary-button" disabled>START GAME · NEED 2</button>
+          <div class="match-settings">
+            <label for="round-limit">MATCH LENGTH</label>
+            <select id="round-limit">
+              <option value="1">1 round</option><option value="3" selected>3 rounds</option>
+              <option value="5">5 rounds</option><option value="7">7 rounds</option><option value="10">10 rounds</option>
+              <option value="15">15 rounds</option><option value="20">20 rounds</option>
+            </select>
+            <button id="end-match-button" class="text-button">END MATCH</button>
+          </div>
+          <label class="motion-toggle"><input id="reduced-motion-toggle" type="checkbox"> REDUCED MOTION</label>
+          <button id="leave-button" class="text-button">LEAVE GAME</button>
+        </div>
+        <div id="lobby-status" class="lobby-status">Waiting for players…</div>
+      </aside>
+
+      <section class="game-column">
+        <div class="stage">
+          <canvas id="game"></canvas>
+          <div class="hud">
+            <div class="hud-pill"><span class="dot"></span><span id="status">LOBBY</span></div>
+            <div class="hud-pill">ROUND <span id="round-timer">--:--</span></div>
+            <div class="hud-pill">ALIVE <span id="alive-count">0</span></div>
+          </div>
+          <div id="arena-warning" class="arena-warning hidden">⚠ ARENA SHRINKING!</div>
+          <div id="game-message" class="game-message">
+            <strong>READY?</strong><span>Share your code and bring the chaos.</span>
+          </div>
+          <div id="scoreboard" class="scoreboard hidden">
+            <div class="scoreboard-card">
+              <div id="scoreboard-title" class="scoreboard-title">ROUND RESULTS</div>
+              <ol id="round-standings" class="round-standings"></ol>
+              <div id="mvp-callout" class="mvp-callout">🏆 MVP</div>
+              <div id="match-winner" class="match-winner hidden"></div>
+              <div class="next-round-note" id="next-round-note">NEXT ROUND STARTS AUTOMATICALLY</div>
+              <div id="match-choice" class="match-choice hidden">
+                <button id="restart-match-button" class="primary-button">PLAY AGAIN</button>
+                <button id="finish-game-button" class="secondary-button">END GAME</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="controls">
+          <div class="joystick-wrap">
+            <div class="control-label">MOVE · TOUCH & DRAG</div>
+            <div id="joystick" class="joystick"><div id="stick" class="stick"></div></div>
+          </div>
+          <div class="control-center"><div class="control-label">WASD / ARROWS</div><div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div></div>
+          <div class="dash-wrap">
+            <div class="control-label">ACTION</div>
+            <button id="dash-button" class="dash-button" disabled><span class="dash-icon">✦</span><span>DASH</span></button>
+            <button id="pebble-button" class="pebble-button hidden"><span class="dash-icon">🪨</span><span>PEBBLE</span></button>
+            <div id="cooldown-caption" class="cooldown-caption">2.5 SEC COOLDOWN</div>
+            <div id="pebble-caption" class="cooldown-caption">TOSS</div>
+          </div>
+        </div>
+      </section>
+    </section>
+    <footer><span>SHOVE &amp; SURVIVE</span><span>MULTIPLAYER ARENA BRAWLER</span></footer>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/client.js"></script>
+</body>
+</html>
